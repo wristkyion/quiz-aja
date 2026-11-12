@@ -6,7 +6,7 @@
   const QH = (global.QH = global.QH || {});
 
   /* Set this to your repository. Used by the GitHub and "suggest a quiz" buttons. */
-  QH.config = { repo: 'https://github.com/YOUR-USER/personality-quiz-hub' };
+  QH.config = { repo: 'https://github.com/wristkyion/quiz-aja' };
 
   QH.quizzes = QH.quizzes || {};   // filled by files in assets/js/quizzes/
   QH.catalog = QH.catalog || [];   // filled by assets/js/catalog.js
