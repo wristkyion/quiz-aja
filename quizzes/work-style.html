@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Social Energy · Quiz Hub</title>
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <meta name="description" content="Find out where you recharge and how you show up around other people.">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('qh.theme') ||
+          (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.dataset.theme = t;
+      } catch (e) { document.documentElement.dataset.theme = 'dark'; }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body data-quiz="social-energy" data-base="../">
+  <header class="site-header">
+    <div class="wrap bar">
+      <a class="brand" href="../index.html" data-i18n="site_title">Quiz Hub</a>
+      <div class="controls" data-controls></div>
+    </div>
+  </header>
+
+  <main class="wrap layout">
+    <div class="layout-main">
+      <div id="app"></div>
+    </div>
+
+    <aside class="side">
+      <section class="card side-card">
+        <h3 class="side-title" data-i18n="sidebar_title">More quizzes</h3>
+        <ul class="side-list" id="side-list"></ul>
+        <button type="button" class="btn btn-ghost btn-small side-more" id="side-more" data-i18n="load_more">Load more</button>
+      </section>
+    </aside>
+  </main>
+
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/core.js"></script>
+  <script src="../assets/js/catalog.js"></script>
+  <script src="../assets/js/quizzes/social-energy.js"></script>
+  <script src="../assets/js/quiz-engine.js"></script>
+  <script src="../assets/js/sidebar.js"></script>
+</body>
+</html>

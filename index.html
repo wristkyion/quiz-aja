@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="site_title">Quiz Hub</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <meta name="description" content="Short personality quizzes with instant results and percentage breakdowns.">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('qh.theme') ||
+          (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.dataset.theme = t;
+      } catch (e) { document.documentElement.dataset.theme = 'dark'; }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-base="">
+  <header class="site-header">
+    <div class="wrap bar">
+      <a class="brand" href="index.html" data-i18n="site_title">Quiz Hub</a>
+      <div class="controls" data-controls></div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <p class="eyebrow" data-i18n="hero_eyebrow">Personality Quiz Hub</p>
+      <h1 data-i18n="hero_title">Discover a little more about yourself.</h1>
+      <p class="lead" data-i18n="hero_lead">Short quizzes with a personality profile and a percentage breakdown. No sign-up, nothing stored.</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" data-i18n="explore_github" data-repo-path="" target="_blank" rel="noopener">Explore on GitHub</a>
+        <a class="btn btn-ghost" data-i18n="suggest_quiz" data-repo-path="/issues/new?template=new-quiz.md&amp;labels=quiz" target="_blank" rel="noopener">Suggest a quiz</a>
+      </div>
+    </section>
+
+    <h3 class="section-title" data-i18n="quizzes_title">Quizzes</h3>
+    <div class="search-wrap">
+      <input id="quiz-search" class="search" type="search" autocomplete="off" aria-label="Search quizzes">
+    </div>
+    <div id="quiz-grid" class="grid"></div>
+    <p id="quiz-empty" class="empty hidden"></p>
+  </main>
+
+  <footer class="site-footer" data-i18n="footer">Open source · Built with plain HTML, CSS and JavaScript.</footer>
+
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/core.js"></script>
+  <script src="assets/js/catalog.js"></script>
+  <script src="assets/js/home.js"></script>
+</body>
+</html>
