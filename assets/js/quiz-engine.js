@@ -1,42 +1,23 @@
 /*
- * Reusable quiz engine. Each quiz page sets <body data-quiz="ID"> and loads its data file.
- * Nothing in this file is specific to one quiz.
+ * Reusable quiz engine. quiz.html is the only quiz page. It reads the quiz name
+ * from the URL hash (quiz.html#work-style), loads assets/js/quizzes/<id>.js on
+ * demand, and runs it. Nothing in this file is specific to one quiz.
  *
- * Quiz data shape:
- *   {
- *     id,
- *     title:  { en, zh, ja, id },
- *     intro:  { en, zh, ja, id },
- *     images: { start, question, result },            // optional, paths relative to the site root
- *     questions: [
- *       { prompt: { en, ... }, image (optional),
- *         options: [{ text: { en, ... }, trait: 'key' }] }
- *     ],
- *     results: { key: { title: { en, ... }, text: { en, ... } } }   // key order = tie-break order
- *   }
+ * Quiz data shape: see assets/js/quizzes/work-style.js
  */
 (function (QH) {
   'use strict';
 
   const app = document.getElementById('app');
-  const quizId = document.body.dataset.quiz;
-  const quiz = QH.quizzes[quizId];
-
-  if (!quiz) {
-    app.innerHTML = '<section class="card screen"><p class="empty"></p></section>';
-    app.querySelector('p').textContent = QH.t('not_found');
-    return;
-  }
-
-  const meta = QH.catalog.find(function (q) { return q.id === quiz.id; }) || {};
-  const author = meta.author;
-
-  const TOTAL = quiz.questions.length;
   const STEP_INTRO = -1;
-  const STEP_RESULT = TOTAL;
-  const images = quiz.images || {};
 
-  let state;
+  let quiz = null;        // current quiz data
+  let meta = {};          // catalog entry (author, etc.)
+  let TOTAL = 0;
+  let STEP_RESULT = 0;
+  let images = {};
+  let state = null;
+  let currentId = null;
 
   function resetState() {
     state = { step: STEP_INTRO, answers: new Array(TOTAL).fill(null) };
@@ -51,8 +32,6 @@
       '<img src="' + QH.escape(QH.asset(src)) + '" alt="" loading="lazy" onerror="this.parentNode.remove()"></figure>';
   }
 
-  /* Each answer adds one point to its trait. Most points wins; ties go to the
-     trait declared first in quiz.results. */
   /* Label for a trait; falls back to the trait key when it has no results entry. */
   function labelFor(key) {
     const r = quiz.results[key];
@@ -73,6 +52,8 @@
     return keys;
   }
 
+  /* Each answer adds one point to its trait. Most points wins; ties go to the
+     trait declared first in quiz.results. */
   function score(answers) {
     const keys = allTraits();
     const counts = {};
@@ -84,7 +65,6 @@
     });
 
     const breakdown = keys.map(function (key) {
-      const result = quiz.results[key];
       return {
         key: key,
         label: labelFor(key),
@@ -99,8 +79,12 @@
     return { breakdown: breakdown, topKey: top.key, topPct: top.pct };
   }
 
-  function scrollTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  /* The winning result's own image. Empty when the top score is tied. */
+  function resultImage(s, result) {
+    const topCount = Math.max.apply(null, s.breakdown.map(function (b) { return b.count; }));
+    const winners = s.breakdown.filter(function (b) { return b.count === topCount; });
+    if (winners.length > 1) return null;
+    return result.image || null;
   }
 
   /* ---------- Screens ---------- */
@@ -113,7 +97,7 @@
         '<h1>' + txt(quiz.title) + '</h1>' +
         '<p class="lead">' + txt(quiz.intro) + '</p>' +
         '<p class="meta">' + QH.escape(QH.fmt(QH.t('meta_questions'), { n: TOTAL })) + '</p>' +
-        (author ? '<p class="small">' + QH.escape(QH.fmt(QH.t('by_author'), { name: author })) + '</p>' : '') +
+        (meta.author ? '<p class="small">' + QH.escape(QH.fmt(QH.t('by_author'), { name: meta.author })) + '</p>' : '') +
         '<div class="btn-row">' +
           '<button type="button" class="btn btn-primary" data-action="start">' + QH.escape(QH.t('start_quiz')) + '</button>' +
         '</div>' +
@@ -154,14 +138,6 @@
     QH.animateBars(app);
   }
 
-  /* The winning result's own image. Empty when the top score is tied. */
-  function resultImage(s, result) {
-    const topCount = Math.max.apply(null, s.breakdown.map(function (b) { return b.count; }));
-    const winners = s.breakdown.filter(function (b) { return b.count === topCount; });
-    if (winners.length > 1) return null;
-    return result.image || null;
-  }
-
   function renderResult() {
     const s = score(state.answers);
     const result = quiz.results[s.topKey] || { title: { en: labelFor(s.topKey) }, text: {} };
@@ -194,7 +170,14 @@
     if (state.step === STEP_INTRO) renderIntro();
     else if (state.step === STEP_RESULT) renderResult();
     else renderQuestion();
-    scrollTop();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function notFound() {
+    currentId = null;
+    quiz = null;
+    app.innerHTML = '<section class="card screen"><p class="empty"></p></section>';
+    app.querySelector('p').textContent = QH.t('not_found');
   }
 
   /* Selecting an option updates the buttons in place, so the other options don't replay their entrance animation. */
@@ -207,6 +190,39 @@
     if (next) next.disabled = false;
   }
 
+  /* ---------- Loading a quiz by name ---------- */
+
+  function start(id) {
+    quiz = QH.quizzes[id];
+    meta = QH.catalog.find(function (q) { return q.id === id; }) || {};
+    TOTAL = quiz.questions.length;
+    STEP_RESULT = TOTAL;
+    images = quiz.images || {};
+    currentId = id;
+    resetState();
+    render();
+  }
+
+  function load(id) {
+    if (!id) return notFound();
+    if (id === currentId) return;
+
+    const known = QH.catalog.some(function (q) { return q.id === id; });
+    if (!known) return notFound();
+
+    if (QH.quizzes[id]) return start(id);
+
+    const script = document.createElement('script');
+    script.src = 'assets/js/quizzes/' + encodeURIComponent(id) + '.js';
+    script.onload = function () { if (QH.quizzes[id]) start(id); else notFound(); };
+    script.onerror = notFound;
+    document.head.appendChild(script);
+  }
+
+  function idFromHash() {
+    try { return decodeURIComponent(location.hash.replace(/^#\/?/, '')); } catch (e) { return ''; }
+  }
+
   /* ---------- Events ---------- */
 
   app.addEventListener('click', function (event) {
@@ -217,7 +233,7 @@
     }
 
     const button = event.target.closest('[data-action]');
-    if (!button) return;
+    if (!button || !quiz) return;
 
     switch (button.dataset.action) {
       case 'start':
@@ -240,8 +256,17 @@
     render();
   });
 
-  window.addEventListener('qh:langchange', render);
+  window.addEventListener('hashchange', function () {
+    const id = idFromHash();
+    if (id === currentId) return;
+    currentId = null;
+    load(id);
+  });
 
-  resetState();
-  render();
+  window.addEventListener('qh:langchange', function () {
+    if (quiz) render();
+    else if (!currentId) notFound();
+  });
+
+  load(idFromHash());
 })(window.QH);

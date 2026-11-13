@@ -19,7 +19,7 @@
 
   function card(quiz, i) {
     return (
-      '<a class="card quiz-card" style="--i:' + i + '" href="' + QH.escape(quiz.page) + '">' +
+      '<a class="card quiz-card" style="--i:' + i + '" href="' + QH.escape(QH.quizLink(quiz.id)) + '">' +
         '<div class="quiz-row">' +
           '<img class="quiz-thumb" src="' + QH.escape(quiz.thumb) + '" alt="" loading="lazy" onerror="this.remove()">' +
           '<div class="quiz-body">' +

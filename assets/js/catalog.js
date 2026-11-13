@@ -1,10 +1,10 @@
 /*
- * Quiz catalog: one entry per quiz. The homepage builds its grid from this list.
+ * Quiz catalog: one entry per quiz. The homepage and sidebar build from this list.
  *
  * To add a quiz:
- *   1. Create assets/js/quizzes/<id>.js with the quiz data.
- *   2. Copy quizzes/work-style.html to quizzes/<id>.html and update data-quiz and the script path.
- *   3. Add an entry below. "questions" is the number of questions in the quiz.
+ *   1. Create assets/js/quizzes/<id>.js with the quiz data (copy work-style.js).
+ *   2. Add an entry below. "questions" is the number of questions in the quiz.
+ *   No HTML file is needed: quiz.html loads the quiz named in the link.
  */
 (function (QH) {
   'use strict';
@@ -21,8 +21,7 @@
       },
       questions: 5,
       author: 'Your Name',
-      thumb: "assets/img/quizzes/work-style.svg",
-      page: 'quizzes/work-style.html'
+      thumb: 'assets/img/quizzes/work-style.svg'
     },
     {
       id: 'social-energy',
@@ -35,8 +34,7 @@
       },
       questions: 5,
       author: 'Your Name',
-      thumb: "assets/img/quizzes/social-energy.svg",
-      page: 'quizzes/social-energy.html'
+      thumb: 'assets/img/quizzes/social-energy.svg'
     }
   ];
 })(window.QH = window.QH || {});

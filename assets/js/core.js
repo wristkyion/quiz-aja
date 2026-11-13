@@ -6,7 +6,7 @@
   const QH = (global.QH = global.QH || {});
 
   /* Set this to your repository. Used by the GitHub and "suggest a quiz" buttons. */
-  QH.config = { repo: 'https://github.com/wristkyion/quiz-aja' };
+  QH.config = { repo: 'https://github.com/YOUR-USER/personality-quiz-hub' };
 
   QH.quizzes = QH.quizzes || {};   // filled by files in assets/js/quizzes/
   QH.catalog = QH.catalog || [];   // filled by assets/js/catalog.js
@@ -19,6 +19,9 @@
   };
 
   QH.asset = function (path) { return QH.base + path; };
+
+  /* Link to a quiz: quiz.html#<id>. Works on GitHub Pages without extra files. */
+  QH.quizLink = function (id) { return QH.asset('quiz.html#' + encodeURIComponent(id)); };
 
   QH.percent = function (part, whole) {
     return whole ? Math.round((part / whole) * 100) : 0;

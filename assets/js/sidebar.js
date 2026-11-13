@@ -1,4 +1,4 @@
-/* Desktop sidebar on quiz pages: lists the other quizzes, a few at a time, with "Load more". */
+/* Desktop sidebar on the quiz page: lists the other quizzes, a few at a time, with "Load more". */
 (function (QH) {
   'use strict';
 
@@ -7,15 +7,23 @@
   const more = document.getElementById('side-more');
   if (!list || !more) return;
 
-  const current = document.body.dataset.quiz;
-  const others = QH.catalog.filter(function (q) { return q.id !== current; });
   let shown = STEP;
 
+  function currentId() {
+    try { return decodeURIComponent(location.hash.replace(/^#\/?/, '')); } catch (e) { return ''; }
+  }
+
+  function others() {
+    const current = currentId();
+    return QH.catalog.filter(function (q) { return q.id !== current; });
+  }
+
   function render() {
-    list.innerHTML = others.slice(0, shown).map(function (quiz, i) {
+    const list_ = others();
+    list.innerHTML = list_.slice(0, shown).map(function (quiz, i) {
       return (
         '<li>' +
-          '<a class="side-item" style="--i:' + i + '" href="' + QH.escape(QH.asset(quiz.page)) + '">' +
+          '<a class="side-item" style="--i:' + i + '" href="' + QH.escape(QH.quizLink(quiz.id)) + '">' +
             '<img src="' + QH.escape(QH.asset(quiz.thumb)) + '" alt="" loading="lazy" onerror="this.remove()">' +
             '<span class="side-text">' +
               '<strong>' + QH.escape(QH.pick(quiz.title)) + '</strong>' +
@@ -26,7 +34,7 @@
       );
     }).join('');
 
-    more.classList.toggle('hidden', shown >= others.length);
+    more.classList.toggle('hidden', shown >= list_.length);
   }
 
   more.addEventListener('click', function () {
@@ -34,6 +42,7 @@
     render();
   });
 
+  window.addEventListener('hashchange', function () { shown = STEP; render(); });
   window.addEventListener('qh:langchange', render);
   render();
 })(window.QH);
