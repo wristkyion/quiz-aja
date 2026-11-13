@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quiz Hub</title>
+  <script>
+    /* Turns short links like /quiz-aja/work-style or /quiz-aja/quizzes/work-style.html
+       into quiz.html#work-style. */
+    (function () {
+      var path = location.pathname
+        .replace(/\/quizzes\/[^/]*$/, '/')
+        .replace(/\/[^/]*$/, '/');
+      var parts = location.pathname.split('/').filter(Boolean);
+      var slug = decodeURIComponent(parts[parts.length - 1] || '').replace(/\.html$/, '');
+      location.replace(path + 'quiz.html' + (slug ? '#' + encodeURIComponent(slug) : ''));
+    })();
+  </script>
+  <style>
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center;
+      background: #0a0a0a; color: #8c8c8c; font-family: system-ui, sans-serif; }
+  </style>
+</head>
+<body>
+  <p>Loading…</p>
+  <noscript><a href="quiz.html" style="color:#f4f4f4">Go to the quiz hub</a></noscript>
+</body>
+</html>
