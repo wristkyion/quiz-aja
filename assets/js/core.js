@@ -4,7 +4,7 @@
   'use strict';
 
   const QH = (global.QH = global.QH || {});
-  QH.config = { repo: 'https://github.com/wristkyion/personality-quiz-hub' };
+  QH.config = { repo: 'https://github.com/wristkyion/quiz-aja' };
 
   QH.quizzes = QH.quizzes || {};   // filled by files in assets/js/quizzes/
   QH.catalog = QH.catalog || [];   // filled by assets/js/catalog.js
